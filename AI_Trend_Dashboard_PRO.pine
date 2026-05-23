@@ -1,0 +1,301 @@
+// ============================================================
+// AI TREND DASHBOARD PRO
+// Version: 1.0.2 (Added Signal Alternation)
+// Pine Script Version: 6
+// ============================================================
+
+//@version=6
+indicator(title="AI Trend Dashboard PRO", shorttitle="AI Trend PRO", overlay=true, max_bars_back=500, max_lines_count=10, max_labels_count=50)
+
+// ============================================================
+// SECTION 1: USER INPUTS
+// ============================================================
+
+// EMA Settings
+emaGroup     = "EMA Trend Engine"
+ema_fast_len = input.int(20,  "Fast EMA",  minval=1, group=emaGroup)
+ema_mid_len  = input.int(50,  "Mid EMA",   minval=1, group=emaGroup)
+ema_slow_len = input.int(200, "Slow EMA",  minval=1, group=emaGroup)
+show_emas    = input.bool(true, "Show EMA Lines", group=emaGroup)
+
+// RSI Settings
+rsiGroup = "RSI Momentum Engine"
+rsi_len  = input.int(14, "RSI Length",       minval=1,  group=rsiGroup)
+rsi_ob   = input.int(70, "Overbought Level", minval=50, maxval=100, group=rsiGroup)
+rsi_os   = input.int(30, "Oversold Level",   minval=0,  maxval=50,  group=rsiGroup)
+
+// Volume Settings
+volGroup       = "Volume Engine"
+vol_ma_len     = input.int(20, "Volume MA Length", minval=1, group=volGroup)
+vol_spike_mult = input.float(1.5, "Spike Threshold (x avg)", minval=1.0, step=0.1, group=volGroup)
+
+// ATR Settings
+atrGroup     = "ATR Volatility Engine"
+atr_len      = input.int(14, "ATR Length", minval=1, group=atrGroup)
+atr_low_mult = input.float(0.5, "Low Volatility Filter (x avg ATR)", minval=0.1, step=0.1, group=atrGroup)
+
+// Multi-Timeframe Settings
+mtfGroup = "Multi-Timeframe Engine"
+mtf_tf1  = input.timeframe("5",   "Timeframe 1", group=mtfGroup)
+mtf_tf2  = input.timeframe("15",  "Timeframe 2", group=mtfGroup)
+mtf_tf3  = input.timeframe("60",  "Timeframe 3", group=mtfGroup)
+mtf_tf4  = input.timeframe("240", "Timeframe 4", group=mtfGroup)
+
+// Score Weights
+weightGroup = "AI Score Weights"
+w_trend     = input.float(40.0, "Trend Weight (%)",  minval=0, maxval=100, group=weightGroup)
+w_rsi       = input.float(25.0, "RSI Weight (%)",    minval=0, maxval=100, group=weightGroup)
+w_vol       = input.float(20.0, "Volume Weight (%)", minval=0, maxval=100, group=weightGroup)
+w_atr       = input.float(15.0, "ATR Weight (%)",    minval=0, maxval=100, group=weightGroup)
+
+// Signal Settings
+sigGroup     = "Signal Display"
+show_buy     = input.bool(true, "Show Buy Signals",  group=sigGroup)
+show_sell    = input.bool(true, "Show Sell Signals", group=sigGroup)
+min_score_sig = input.float(65.0, "Min Score for Signal", minval=50, maxval=100, group=sigGroup)
+
+// Dashboard Settings
+dashGroup = "Dashboard"
+dash_pos  = input.string("Top Right", "Dashboard Position", options=["Top Right","Top Left","Bottom Right","Bottom Left"], group=dashGroup)
+show_dash = input.bool(true, "Show Dashboard", group=dashGroup)
+
+// ============================================================
+// SECTION 2: TREND ENGINE
+// ============================================================
+
+ema_fast = ta.ema(close, ema_fast_len)
+ema_mid  = ta.ema(close, ema_mid_len)
+ema_slow = ta.ema(close, ema_slow_len)
+
+bull_ema = close > ema_fast and ema_fast > ema_mid and ema_mid > ema_slow
+bear_ema = close < ema_fast and ema_fast < ema_mid and ema_mid < ema_slow
+
+golden_cross  = ta.crossover(ema_fast,  ema_slow)
+death_cross   = ta.crossunder(ema_fast, ema_slow)
+
+trend_score = bull_ema ? 100.0 : bear_ema ? 0.0 : (close > ema_fast and ema_fast > ema_mid) ? 75.0 : (close < ema_fast and ema_fast < ema_mid) ? 25.0 : close > ema_slow ? 55.0 : 45.0
+
+trend_label = trend_score >= 85 ? "Bullish" : trend_score <= 15 ? "Bearish" : "Neutral"
+
+// ============================================================
+// SECTION 3: MOMENTUM ENGINE (RSI)
+// ============================================================
+
+rsi_val    = ta.rsi(close, rsi_len)
+
+rsi_bull   = rsi_val > 50 and rsi_val < rsi_ob
+rsi_bear   = rsi_val < 50 and rsi_val > rsi_os
+rsi_ob_zone = rsi_val >= rsi_ob
+rsi_os_zone = rsi_val <= rsi_os
+
+rsi_score = math.min(math.max(rsi_val, 0), 100)
+
+rsi_label = rsi_ob_zone ? "Overbought" : rsi_os_zone ? "Oversold" : rsi_bull ? "Bullish" : rsi_bear ? "Bearish" : "Neutral"
+
+// ============================================================
+// SECTION 4: VOLUME ENGINE
+// ============================================================
+
+vol_ma    = ta.sma(volume, vol_ma_len)
+vol_ratio = vol_ma > 0 ? volume / vol_ma : 1.0
+vol_spike = vol_ratio >= vol_spike_mult
+
+vol_raw_score = math.min(vol_ratio * 50.0, 100.0)
+
+vol_bull_conf = vol_spike and close >= open
+vol_bear_conf = vol_spike and close < open
+
+vol_score = vol_bull_conf ? math.min(vol_raw_score * 1.2, 100.0) : vol_bear_conf ? math.max(vol_raw_score * 0.8, 0.0) : vol_raw_score
+
+vol_label = vol_ratio >= vol_spike_mult * 1.5 ? "Extreme Spike" : vol_spike ? "High Volume" : vol_ratio >= 0.8 ? "Normal" : "Low Volume"
+
+// ============================================================
+// SECTION 5: VOLATILITY ENGINE (ATR)
+// ============================================================
+
+atr_val        = ta.atr(atr_len)
+atr_ma         = ta.sma(atr_val, 20)
+atr_ratio      = atr_ma > 0 ? atr_val / atr_ma : 1.0
+low_vol_filter = atr_ratio < atr_low_mult
+
+atr_score = math.min(math.max(atr_ratio * 50.0, 0.0), 100.0)
+
+atr_label = atr_ratio >= 1.5 ? "High" : atr_ratio >= 0.8 ? "Normal" : "Low"
+
+// ============================================================
+// SECTION 6: MULTI-TIMEFRAME ANALYSIS
+// ============================================================
+
+f_mtf_score(_tf) =>
+    _e_fast = request.security(syminfo.tickerid, _tf, ta.ema(close, ema_fast_len), lookahead=barmerge.lookahead_off)
+    _e_mid  = request.security(syminfo.tickerid, _tf, ta.ema(close, ema_mid_len),  lookahead=barmerge.lookahead_off)
+    _e_slow = request.security(syminfo.tickerid, _tf, ta.ema(close, ema_slow_len), lookahead=barmerge.lookahead_off)
+    _c      = request.security(syminfo.tickerid, _tf, close, lookahead=barmerge.lookahead_off)
+    _bull   = _c > _e_fast and _e_fast > _e_mid and _e_mid > _e_slow
+    _bear   = _c < _e_fast and _e_fast < _e_mid and _e_mid < _e_slow
+    _bull ? 100.0 : _bear ? 0.0 : 50.0
+
+mtf1_score = f_mtf_score(mtf_tf1)
+mtf2_score = f_mtf_score(mtf_tf2)
+mtf3_score = f_mtf_score(mtf_tf3)
+mtf4_score = f_mtf_score(mtf_tf4)
+
+mtf_avg = (mtf1_score + mtf2_score + mtf3_score + mtf4_score) / 4.0
+
+mtf_bull_count = (mtf1_score >= 60 ? 1 : 0) + (mtf2_score >= 60 ? 1 : 0) + (mtf3_score >= 60 ? 1 : 0) + (mtf4_score >= 60 ? 1 : 0)
+mtf_bear_count = (mtf1_score <= 40 ? 1 : 0) + (mtf2_score <= 40 ? 1 : 0) + (mtf3_score <= 40 ? 1 : 0) + (mtf4_score <= 40 ? 1 : 0)
+
+mtf_label = mtf_bull_count == 4 ? "Full Bull" : mtf_bull_count == 3 ? "Strong Bull" : mtf_bear_count == 4 ? "Full Bear" : mtf_bear_count == 3 ? "Strong Bear" : mtf_bull_count == 2 ? "Mixed Bull" : mtf_bear_count == 2 ? "Mixed Bear" : "Neutral"
+
+// ============================================================
+// SECTION 7: AI SCORE ENGINE
+// ============================================================
+
+total_weight = w_trend + w_rsi + w_vol + w_atr
+w_trend_n    = total_weight > 0 ? w_trend / total_weight : 0.40
+w_rsi_n      = total_weight > 0 ? w_rsi   / total_weight : 0.25
+w_vol_n      = total_weight > 0 ? w_vol   / total_weight : 0.20
+w_atr_n      = total_weight > 0 ? w_atr   / total_weight : 0.15
+
+trend_mtf_blend = trend_score * 0.5 + mtf_avg * 0.5
+ai_score        = trend_mtf_blend * w_trend_n + rsi_score * w_rsi_n + vol_score * w_vol_n + atr_score * w_atr_n
+ai_score_r      = math.round(ai_score * 10) / 10
+
+signal_label = ai_score >= 80 ? "STRONG BUY" : ai_score >= 60 ? "BUY" : ai_score <= 20 ? "STRONG SELL" : ai_score <= 40 ? "SELL" : "NEUTRAL"
+
+buy_prob  = math.round(ai_score)
+sell_prob = 100 - buy_prob
+
+// ============================================================
+// SECTION 8: SIGNAL SYSTEM WITH ALTERNATION
+// ============================================================
+
+// Raw signals based on AI score
+raw_buy_signal  = ta.crossover(ai_score,  min_score_sig)       and not low_vol_filter
+raw_sell_signal = ta.crossunder(ai_score, 100 - min_score_sig) and not low_vol_filter
+
+// Signal alternation logic
+var int last_signal = 0  // 0 = no signal, 1 = buy, -1 = sell
+
+// Determine if we should allow new signals
+allow_buy_signal  = (last_signal != 1)  // Only allow buy if last signal wasn't a buy
+allow_sell_signal = (last_signal != -1) // Only allow sell if last signal wasn't a sell
+
+// Generate filtered signals with alternation
+buy_signal  = raw_buy_signal and allow_buy_signal
+sell_signal = raw_sell_signal and allow_sell_signal
+
+// Update last_signal state when a signal occurs
+if buy_signal
+    last_signal := 1
+if sell_signal
+    last_signal := -1
+
+// Plot signals
+plotshape(show_buy  and buy_signal,  title="Buy Signal",  style=shape.labelup,   location=location.belowbar, color=color.new(color.lime, 0), textcolor=color.black, text="BUY",  size=size.normal)
+plotshape(show_sell and sell_signal, title="Sell Signal", style=shape.labeldown, location=location.abovebar, color=color.new(color.red,  0), textcolor=color.white, text="SELL", size=size.normal)
+
+plot(show_emas ? ema_fast : na, "EMA 20",  color=color.new(color.yellow, 0), linewidth=1)
+plot(show_emas ? ema_mid  : na, "EMA 50",  color=color.new(color.orange, 0), linewidth=1)
+plot(show_emas ? ema_slow : na, "EMA 200", color=color.new(color.red,    0), linewidth=2)
+
+bgcolor(bull_ema ? color.new(color.lime, 95) : bear_ema ? color.new(color.red, 95) : na, title="Trend Background")
+
+// ============================================================
+// SECTION 9: DASHBOARD UI
+// ============================================================
+
+f_score_color(_score) =>
+    _score >= 70 ? color.new(color.lime,   10) :
+     _score >= 55 ? color.new(color.green,  10) :
+     _score <= 30 ? color.new(color.red,    10) :
+     _score <= 45 ? color.new(color.orange, 10) :
+     color.new(color.gray, 10)
+
+f_signal_color(_sig) =>
+    _sig == "STRONG BUY"  ? color.new(color.lime,   0) :
+     _sig == "BUY"         ? color.new(color.green,  0) :
+     _sig == "STRONG SELL" ? color.new(color.red,    0) :
+     _sig == "SELL"        ? color.new(color.orange, 0) :
+     color.new(color.gray, 0)
+
+dash_pos_val = dash_pos == "Top Right" ? position.top_right : dash_pos == "Top Left" ? position.top_left : dash_pos == "Bottom Right" ? position.bottom_right : position.bottom_left
+
+var table dash = table.new(position=dash_pos_val, columns=3, rows=15, bgcolor=color.new(color.black, 20), border_color=color.new(color.gray, 60), border_width=1, frame_color=color.new(color.blue, 40), frame_width=2)
+
+var color COL_HEADER = color.new(#0d1b2a, 0)
+var color COL_LABEL  = color.new(#1a2e44, 0)
+var color COL_VAL_BG = color.new(#0a1628, 0)
+var color COL_TEXT   = color.new(color.white, 0)
+var color COL_DIM    = color.new(color.silver, 0)
+var color COL_ACCENT = color.new(#00d4ff, 0)
+
+f_row(_row, _label, _val_str, _score, _tt) =>
+    table.cell(dash, 0, _row, _label,   bgcolor=COL_LABEL,  text_color=COL_DIM,  text_size=size.small, tooltip=_tt)
+    table.cell(dash, 1, _row, _val_str, bgcolor=COL_VAL_BG, text_color=COL_TEXT, text_size=size.small)
+    _bar_str = str.tostring(math.round(_score)) + "%"
+    table.cell(dash, 2, _row, _bar_str, bgcolor=f_score_color(_score), text_color=color.black, text_size=size.small)
+
+if show_dash
+    table.cell(dash, 0, 0, "AI TREND DASHBOARD PRO", bgcolor=COL_HEADER, text_color=COL_ACCENT, text_size=size.normal, text_halign=text.align_center)
+    table.merge_cells(dash, 0, 0, 2, 0)
+
+    table.cell(dash, 0, 1, "MODULE", bgcolor=COL_HEADER, text_color=COL_DIM, text_size=size.tiny)
+    table.cell(dash, 1, 1, "STATUS", bgcolor=COL_HEADER, text_color=COL_DIM, text_size=size.tiny)
+    table.cell(dash, 2, 1, "SCORE",  bgcolor=COL_HEADER, text_color=COL_DIM, text_size=size.tiny)
+
+    f_row(2, "Trend",      trend_label, trend_score, "EMA 20/50/200 alignment score")
+    f_row(3, "Momentum",   rsi_label + " (" + str.tostring(math.round(rsi_val)) + ")", rsi_score, "RSI momentum strength")
+    f_row(4, "Volume",     vol_label + " (" + str.tostring(math.round(vol_ratio * 100) / 100) + "x)", vol_score, "Volume vs MA ratio")
+    f_row(5, "Volatility", atr_label + " (ATR " + str.tostring(math.round(atr_val * 100) / 100) + ")", atr_score, "ATR relative to average")
+
+    table.cell(dash, 0, 6, "-- MULTI-TIMEFRAME --", bgcolor=COL_HEADER, text_color=COL_DIM, text_size=size.tiny, text_halign=text.align_center)
+    table.merge_cells(dash, 0, 6, 2, 6)
+
+    _mtf1_str = mtf1_score >= 60 ? "Bull" : mtf1_score <= 40 ? "Bear" : "Neutral"
+    _mtf2_str = mtf2_score >= 60 ? "Bull" : mtf2_score <= 40 ? "Bear" : "Neutral"
+    _mtf3_str = mtf3_score >= 60 ? "Bull" : mtf3_score <= 40 ? "Bear" : "Neutral"
+    _mtf4_str = mtf4_score >= 60 ? "Bull" : mtf4_score <= 40 ? "Bear" : "Neutral"
+
+    f_row(7,  mtf_tf1 + "m", _mtf1_str, mtf1_score, "Trend on " + mtf_tf1 + " timeframe")
+    f_row(8,  mtf_tf2 + "m", _mtf2_str, mtf2_score, "Trend on " + mtf_tf2 + " timeframe")
+    f_row(9,  mtf_tf3 + "m", _mtf3_str, mtf3_score, "Trend on " + mtf_tf3 + " timeframe")
+    f_row(10, mtf_tf4 + "m", _mtf4_str, mtf4_score, "Trend on " + mtf_tf4 + " timeframe")
+
+    f_row(11, "MTF Align", mtf_label, mtf_avg, "Overall multi-timeframe alignment")
+
+    table.cell(dash, 0, 12, "-- AI SIGNAL ENGINE --", bgcolor=COL_HEADER, text_color=COL_DIM, text_size=size.tiny, text_halign=text.align_center)
+    table.merge_cells(dash, 0, 12, 2, 12)
+
+    _sig_col = f_signal_color(signal_label)
+    table.cell(dash, 0, 13, "AI Score: " + str.tostring(ai_score_r), bgcolor=_sig_col, text_color=color.black, text_size=size.small, text_halign=text.align_center)
+    table.cell(dash, 1, 13, signal_label, bgcolor=_sig_col, text_color=color.black, text_size=size.small, text_halign=text.align_center)
+    table.cell(dash, 2, 13, "B:" + str.tostring(buy_prob) + "% S:" + str.tostring(sell_prob) + "%", bgcolor=_sig_col, text_color=color.black, text_size=size.small, text_halign=text.align_center)
+    
+    // Add signal state indicator to dashboard
+    last_signal_text = last_signal == 1 ? "LAST: BUY" : last_signal == -1 ? "LAST: SELL" : "LAST: NONE"
+    table.cell(dash, 0, 14, last_signal_text, bgcolor=COL_LABEL, text_color=COL_ACCENT, text_size=size.small, text_halign=text.align_center)
+    table.merge_cells(dash, 0, 14, 2, 14)
+
+// ============================================================
+// SECTION 10: ALERT SYSTEM
+// ============================================================
+
+alertcondition(buy_signal,  title="AI Trend PRO - Buy Signal",  message="BUY SIGNAL | {{ticker}} | Price: {{close}}")
+alertcondition(sell_signal, title="AI Trend PRO - Sell Signal", message="SELL SIGNAL | {{ticker}} | Price: {{close}}")
+alertcondition(golden_cross, title="AI Trend PRO - Golden Cross", message="GOLDEN CROSS | {{ticker}} | Price: {{close}}")
+alertcondition(death_cross,  title="AI Trend PRO - Death Cross",  message="DEATH CROSS | {{ticker}} | Price: {{close}}")
+
+strong_setup = ai_score >= 80 or ai_score <= 20
+alertcondition(strong_setup, title="AI Trend PRO - Strong Setup", message="STRONG SETUP | {{ticker}} | Price: {{close}}")
+
+mtf_full_bull_alert = mtf_bull_count == 4
+mtf_full_bear_alert = mtf_bear_count == 4
+alertcondition(mtf_full_bull_alert, title="AI Trend PRO - Full MTF Bull", message="FULL MTF BULL | {{ticker}} | Price: {{close}}")
+alertcondition(mtf_full_bear_alert, title="AI Trend PRO - Full MTF Bear", message="FULL MTF BEAR | {{ticker}} | Price: {{close}}")
+
+plot(ai_score_r, title="AI Score", display=display.data_window, color=color.blue)
+
+// ============================================================
+// END OF SCRIPT
+// ============================================================

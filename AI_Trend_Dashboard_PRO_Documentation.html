@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Trend Dashboard PRO — Full Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #08090d;
+    --bg2:       #0e111a;
+    --bg3:       #141824;
+    --border:    #1e2535;
+    --border2:   #2a3347;
+    --accent:    #00d4ff;
+    --accent2:   #7c3aed;
+    --green:     #00f58c;
+    --red:       #ff4d6a;
+    --amber:     #ffb800;
+    --text:      #e8edf5;
+    --muted:     #6b7a99;
+    --mono:      'JetBrains Mono', monospace;
+    --head:      'Syne', sans-serif;
+    --body:      'Inter', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* ── HERO */
+  .hero {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 80px 48px 64px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -80px;
+    width: 600px; height: 600px;
+    background: radial-gradient(ellipse, rgba(0,212,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 200px;
+    width: 500px; height: 400px;
+    background: radial-gradient(ellipse, rgba(124,58,237,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 28px;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-family: var(--head);
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 640px;
+    margin-bottom: 36px;
+    font-weight: 300;
+  }
+  .hero-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+  .tag {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 4px;
+  }
+  .tag.green { color: var(--green); border-color: rgba(0,245,140,0.2); background: rgba(0,245,140,0.05); }
+  .tag.blue  { color: var(--accent); border-color: rgba(0,212,255,0.2); background: rgba(0,212,255,0.05); }
+  .tag.purple { color: #a78bfa; border-color: rgba(124,58,237,0.3); background: rgba(124,58,237,0.07); }
+
+  /* ── LAYOUT */
+  .container { max-width: 1040px; margin: 0 auto; padding: 0 48px; }
+  .section { padding: 64px 48px; border-bottom: 1px solid var(--border); }
+  .section-title {
+    font-family: var(--head);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .section-h2 {
+    font-family: var(--head);
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 32px;
+    letter-spacing: -0.02em;
+  }
+
+  /* ── ARCHITECTURE GRID */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .arch-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+  .arch-card:hover { border-color: var(--border2); }
+  .arch-card .icon {
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+  .arch-card h3 {
+    font-family: var(--head);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .arch-card p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .arch-card .score-badge {
+    display: inline-block;
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 3px;
+  }
+  .sb-blue  { background: rgba(0,212,255,0.1); color: var(--accent); }
+  .sb-green { background: rgba(0,245,140,0.1); color: var(--green); }
+  .sb-amber { background: rgba(255,184,0,0.1); color: var(--amber); }
+  .sb-purple { background: rgba(124,58,237,0.12); color: #a78bfa; }
+  .sb-red   { background: rgba(255,77,106,0.1); color: var(--red); }
+
+  /* ── MODULE DEEP DIVES */
+  .module-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .module-block.green  { border-left-color: var(--green); }
+  .module-block.amber  { border-left-color: var(--amber); }
+  .module-block.purple { border-left-color: #a78bfa; }
+  .module-block.red    { border-left-color: var(--red); }
+  .module-block h3 {
+    font-family: var(--head);
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .module-block .sub {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: var(--mono);
+    margin-bottom: 16px;
+  }
+  .module-block p { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+  .module-block ul { list-style: none; padding: 0; }
+  .module-block ul li {
+    font-size: 13px;
+    color: var(--muted);
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .module-block ul li:last-child { border-bottom: none; }
+  .module-block ul li::before {
+    content: '→';
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 11px;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .module-block.green ul li::before  { color: var(--green); }
+  .module-block.amber ul li::before  { color: var(--amber); }
+  .module-block.purple ul li::before { color: #a78bfa; }
+  .module-block.red ul li::before    { color: var(--red); }
+
+  /* ── CODE BLOCKS */
+  .code-block {
+    background: #070a10;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 20px 0;
+  }
+  .code-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .code-header span {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .d-red   { background: #ff5f56; }
+  .d-amber { background: #ffbd2e; }
+  .d-green { background: #27c93f; }
+  pre {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.8;
+    padding: 20px;
+    color: #c8d3ea;
+    overflow-x: auto;
+  }
+  pre .kw  { color: #569cd6; }
+  pre .fn  { color: #dcdcaa; }
+  pre .str { color: #ce9178; }
+  pre .num { color: #b5cea8; }
+  pre .cmt { color: #6a9955; font-style: italic; }
+  pre .var { color: #9cdcfe; }
+  pre .op  { color: #d4d4d4; }
+  pre .acc { color: var(--accent); }
+
+  /* ── SCORE TABLE */
+  .score-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 20px 0;
+  }
+  .score-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .score-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .score-table tr:last-child td { border-bottom: none; }
+  .score-table td:first-child { color: var(--text); font-weight: 500; }
+  .pbar {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    margin-top: 4px;
+  }
+  .pbar-fill {
+    height: 100%;
+    border-radius: 2px;
+  }
+
+  /* ── SIGNAL LEGEND */
+  .signal-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin: 24px 0;
+  }
+  .signal-card {
+    border-radius: 8px;
+    padding: 16px 12px;
+    text-align: center;
+  }
+  .signal-card .range {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .signal-card .name {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+  .s-sb { background: rgba(0,245,140,0.12); color: var(--green); }
+  .s-b  { background: rgba(0,212,255,0.1);  color: var(--accent); }
+  .s-n  { background: rgba(107,122,153,0.1); color: var(--muted); }
+  .s-s  { background: rgba(255,184,0,0.1);  color: var(--amber); }
+  .s-ss { background: rgba(255,77,106,0.12); color: var(--red); }
+
+  /* ── DASHBOARD MOCKUP */
+  .dashboard-mockup {
+    background: rgba(8,9,13,0.95);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    overflow: hidden;
+    font-family: var(--mono);
+    max-width: 380px;
+  }
+  .dash-title-row {
+    background: #0d1b2a;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--accent);
+    text-align: center;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+  .dash-header-row {
+    display: grid; grid-template-columns: 2fr 2fr 1fr;
+    padding: 6px 12px;
+    font-size: 10px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .dash-row {
+    display: grid; grid-template-columns: 2fr 2fr 1fr;
+    padding: 8px 12px;
+    font-size: 11px;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+  }
+  .dash-row .label { color: var(--muted); }
+  .dash-row .val   { color: var(--text); }
+  .dash-score {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    text-align: center;
+  }
+  .sc-g  { background: rgba(0,245,140,0.15); color: var(--green); }
+  .sc-b  { background: rgba(0,212,255,0.12); color: var(--accent); }
+  .sc-y  { background: rgba(255,184,0,0.12); color: var(--amber); }
+  .sc-r  { background: rgba(255,77,106,0.12); color: var(--red); }
+  .sc-gr { background: rgba(107,122,153,0.15); color: var(--muted); }
+  .dash-sep {
+    padding: 6px 12px;
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.1em;
+  }
+  .dash-final {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    background: rgba(0,245,140,0.08);
+    border-top: 1px solid rgba(0,245,140,0.2);
+  }
+  .dash-final div {
+    padding: 10px 8px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--green);
+    font-weight: 600;
+  }
+
+  /* ── BEST PRACTICES */
+  .tip-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .tip-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .tip-card h4 {
+    font-family: var(--head);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .tip-card p { font-size: 12px; color: var(--muted); line-height: 1.7; }
+  .tip-num {
+    background: rgba(0,212,255,0.1);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  /* ── ALERT TABLE */
+  .alert-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin: 20px 0;
+  }
+  .alert-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .alert-card .alert-name {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .alert-card p { font-size: 12px; color: var(--muted); }
+
+  /* ── UPWORK/MARKETPLACE */
+  .publish-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 24px; margin: 24px 0;
+  }
+  .publish-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+  }
+  .publish-card h4 {
+    font-family: var(--head);
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .publish-card ol {
+    padding-left: 18px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 2;
+  }
+
+  /* ── FUTURE FEATURES */
+  .future-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin: 24px 0;
+  }
+  .future-card {
+    background: var(--bg2);
+    border: 1px dashed var(--border2);
+    border-radius: 10px;
+    padding: 18px;
+    opacity: 0.85;
+  }
+  .future-card .fc-icon { font-size: 24px; margin-bottom: 8px; display: block; }
+  .future-card h4 { font-family: var(--head); font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .future-card p { font-size: 11px; color: var(--muted); }
+  .future-card .coming {
+    font-family: var(--mono); font-size: 9px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 8px;
+    display: block;
+  }
+
+  /* ── FOOTER */
+  footer {
+    padding: 48px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: var(--mono);
+    border-top: 1px solid var(--border);
+  }
+  footer span { color: var(--accent); }
+
+  /* ── NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(8,9,13,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 48px;
+    display: flex; align-items: center; gap: 32px;
+  }
+  .nav-logo {
+    font-family: var(--head);
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+  nav a {
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    font-family: var(--mono);
+    transition: color 0.15s;
+  }
+  nav a:hover { color: var(--text); }
+
+  @media (max-width: 700px) {
+    .hero, .section { padding: 40px 24px; }
+    nav { padding: 12px 24px; }
+    .signal-grid { grid-template-columns: repeat(3, 1fr); }
+    .publish-grid, .alert-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">AI Trend PRO</a>
+  <a href="#architecture">Architecture</a>
+  <a href="#modules">Modules</a>
+  <a href="#scoring">Scoring</a>
+  <a href="#dashboard">Dashboard</a>
+  <a href="#alerts">Alerts</a>
+  <a href="#publish">Publish</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">📜 Pine Script v6 · Production Ready</div>
+  <h1>AI Trend Dashboard<br><span>PRO</span></h1>
+  <p>A professional-grade multi-engine trend analysis indicator for TradingView. Built for performance, non-repainting accuracy, and marketplace-ready aesthetics.</p>
+  <div class="hero-tags">
+    <span class="tag blue">Pine Script v6</span>
+    <span class="tag green">Non-Repainting</span>
+    <span class="tag">EMA Trend Engine</span>
+    <span class="tag">RSI Momentum</span>
+    <span class="tag">Volume Confirmation</span>
+    <span class="tag">ATR Volatility</span>
+    <span class="tag purple">Multi-Timeframe</span>
+    <span class="tag green">AI Score System</span>
+    <span class="tag">Dashboard UI</span>
+    <span class="tag">Alert System</span>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="section" id="architecture">
+  <div class="section-title">Step 1</div>
+  <h2 class="section-h2">Project Architecture</h2>
+  <p style="color: var(--muted); margin-bottom: 32px; max-width: 700px;">The indicator is broken into 10 modular sections. Each section is self-contained, independently testable, and communicates via normalized 0–100 score values. This makes the system easy to debug, extend, and sell.</p>
+
+  <div class="arch-grid">
+    <div class="arch-card">
+      <div class="icon">📈</div>
+      <h3>Trend Engine</h3>
+      <p>EMA 20/50/200 alignment. Classifies full bull, partial bull, neutral, partial bear, full bear.</p>
+      <span class="score-badge sb-blue">Weight: 40%</span>
+    </div>
+    <div class="arch-card">
+      <div class="icon">⚡</div>
+      <h3>Momentum Engine</h3>
+      <p>RSI-based momentum. Detects overbought/oversold zones and healthy momentum bands.</p>
+      <span class="score-badge sb-purple">Weight: 25%</span>
+    </div>
+    <div class="arch-card">
+      <div class="icon">📊</div>
+      <h3>Volume Engine</h3>
+      <p>Ratio of current volume to MA. Detects directional spikes and confirms trend strength.</p>
+      <span class="score-badge sb-amber">Weight: 20%</span>
+    </div>
+    <div class="arch-card">
+      <div class="icon">🌊</div>
+      <h3>Volatility Engine</h3>
+      <p>Relative ATR ratio. Filters choppy, low-volatility environments from signal generation.</p>
+      <span class="score-badge sb-red">Weight: 15%</span>
+    </div>
+    <div class="arch-card">
+      <div class="icon">🔗</div>
+      <h3>MTF Engine</h3>
+      <p>Runs trend logic across 4 timeframes (5m/15m/1H/4H) without lookahead bias.</p>
+      <span class="score-badge sb-green">Blended into Trend</span>
+    </div>
+    <div class="arch-card">
+      <div class="icon">🤖</div>
+      <h3>AI Score Engine</h3>
+      <p>Weighted composite of all engine scores. Outputs a 0–100 probability score with signal label.</p>
+      <span class="score-badge sb-blue">0–100 Scale</span>
+    </div>
+    <div class="arch-card">
+      <div class="icon">🎯</div>
+      <h3>Signal System</h3>
+      <p>Buy/sell signals via score crossover logic with ATR filter gate. Non-repainting.</p>
+      <span class="score-badge sb-green">plotshape()</span>
+    </div>
+    <div class="arch-card">
+      <div class="icon">🖥️</div>
+      <h3>Dashboard UI</h3>
+      <p>Professional table.new() dashboard. Dynamic colors, score bars, and MTF breakdown.</p>
+      <span class="score-badge sb-purple">table.new()</span>
+    </div>
+    <div class="arch-card">
+      <div class="icon">🔔</div>
+      <h3>Alert System</h3>
+      <p>7 named alertcondition() calls covering buy, sell, trend change, and strong setups.</p>
+      <span class="score-badge sb-amber">alertcondition()</span>
+    </div>
+    <div class="arch-card">
+      <div class="icon">⚙️</div>
+      <h3>Input System</h3>
+      <p>Fully configurable via TradingView's Settings panel. Grouped by engine with tooltips.</p>
+      <span class="score-badge sb-blue">input.*</span>
+    </div>
+  </div>
+</section>
+
+<!-- MODULE DEEP DIVES -->
+<section class="section" id="modules">
+  <div class="section-title">Step 2</div>
+  <h2 class="section-h2">Module Deep Dives</h2>
+
+  <div class="module-block">
+    <h3>📈 Trend Engine</h3>
+    <div class="sub">EMA 20 · EMA 50 · EMA 200 · Crossover Detection</div>
+    <p>The core of the system. Uses three EMAs to measure trend alignment. Full bull alignment (price > EMA20 > EMA50 > EMA200) scores 100. Full bear alignment scores 0. Partial states are assigned 75 or 25. The trend score is then blended 50/50 with the MTF average before entering the weighted composite.</p>
+    <ul>
+      <li>Golden Cross (EMA20 crosses above EMA200) triggers a dedicated alert</li>
+      <li>Death Cross (EMA20 crosses below EMA200) triggers a dedicated alert</li>
+      <li>Background shading provides visual context for full bull/bear states</li>
+      <li>EMA lines plotted on chart and can be toggled via input</li>
+    </ul>
+  </div>
+
+  <div class="module-block green">
+    <h3>⚡ Momentum Engine (RSI)</h3>
+    <div class="sub">RSI · Overbought/Oversold Detection · Momentum Scoring</div>
+    <p>RSI is calculated using ta.rsi() on closed bars — it does not repaint. The raw RSI value (0–100) is used directly as the momentum score, centered at 50. Values above 70 indicate overbought conditions (caution), and below 30 indicate oversold (potential bounce).</p>
+    <ul>
+      <li>Healthy bullish momentum: RSI 50–70 (trending without being overextended)</li>
+      <li>Healthy bearish momentum: RSI 30–50</li>
+      <li>Overbought (RSI ≥ 70): score still high, but label warns of exhaustion</li>
+      <li>Oversold (RSI ≤ 30): score still low, but label signals reversal potential</li>
+    </ul>
+  </div>
+
+  <div class="module-block amber">
+    <h3>📊 Volume Engine</h3>
+    <div class="sub">Volume Ratio · Directional Spikes · Trend Confirmation</div>
+    <p>Volume is compared to a 20-bar SMA to produce a ratio (e.g. 1.8 = 180% of average). This ratio is scaled into a 0–100 score. Directional adjustment: if a spike occurs on a bullish candle (close ≥ open), the score is boosted 20%. On a bearish spike, it is reduced 20%. This rewards volume that confirms rather than contradicts trend direction.</p>
+    <ul>
+      <li>vol_ratio = current volume / vol_ma (guarded against division by zero)</li>
+      <li>Spike threshold configurable by user (default 1.5× average)</li>
+      <li>Dashboard shows ratio in real-time alongside the label</li>
+      <li>Extreme spikes (2.25×+) labeled as "Extreme Spike"</li>
+    </ul>
+  </div>
+
+  <div class="module-block purple">
+    <h3>🌊 Volatility Engine (ATR)</h3>
+    <div class="sub">ATR · ATR MA Ratio · Low-Volatility Filter</div>
+    <p>ATR measures the true range of price movement. By dividing the current ATR by a 20-bar SMA of ATR, we get a relative volatility ratio. This powers two functions: (1) a score contribution (high volatility → higher score as market is active), and (2) a signal filter gate that blocks buy/sell signals during choppy low-volatility periods.</p>
+    <ul>
+      <li>atr_ratio &lt; 0.5 (configurable) activates the low_vol_filter gate</li>
+      <li>When filter is active, buy/sell signals are suppressed — not plotted</li>
+      <li>ATR absolute value shown in dashboard for reference</li>
+      <li>Relative ratio used for scoring to normalize across assets</li>
+    </ul>
+  </div>
+
+  <div class="module-block red">
+    <h3>🔗 Multi-Timeframe Engine</h3>
+    <div class="sub">request.security() · lookahead_off · 4 Timeframes</div>
+    <p>Each of the 4 timeframes runs the same EMA alignment logic via a helper function f_mtf_score(). The function uses request.security() with lookahead=barmerge.lookahead_off to prevent lookahead bias. The four scores are averaged into mtf_avg, then blended 50/50 with the current-timeframe trend score.</p>
+    <ul>
+      <li>All 4 timeframes shown individually in dashboard with bull/bear/neutral status</li>
+      <li>MTF alignment summary label (e.g. "Full Bull", "Strong Bear", "Mixed")</li>
+      <li>Full bull/bear MTF alignment triggers dedicated alerts</li>
+      <li>Timeframes configurable via input (default: 5m, 15m, 1H, 4H)</li>
+    </ul>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="d-red"></span><span class="d-amber"></span><span class="d-green"></span></div>
+      <span>MTF helper function — non-repainting pattern</span>
+    </div>
+    <pre><span class="cmt">// NON-REPAINTING: lookahead=barmerge.lookahead_off is critical</span>
+<span class="kw">f_mtf_score</span>(<span class="var">tf</span>) =>
+    <span class="var">e_fast</span>  = <span class="fn">request.security</span>(<span class="fn">syminfo.tickerid</span>, <span class="var">tf</span>,
+                  <span class="fn">ta.ema</span>(<span class="var">close</span>, <span class="var">ema_fast_len</span>),
+                  <span class="str">lookahead</span>=<span class="acc">barmerge.lookahead_off</span>)
+    <span class="var">e_slow</span>  = <span class="fn">request.security</span>(<span class="fn">syminfo.tickerid</span>, <span class="var">tf</span>,
+                  <span class="fn">ta.ema</span>(<span class="var">close</span>, <span class="var">ema_slow_len</span>),
+                  <span class="str">lookahead</span>=<span class="acc">barmerge.lookahead_off</span>)
+    <span class="var">c</span>       = <span class="fn">request.security</span>(<span class="fn">syminfo.tickerid</span>, <span class="var">tf</span>, <span class="var">close</span>,
+                  <span class="str">lookahead</span>=<span class="acc">barmerge.lookahead_off</span>)
+    <span class="var">bull</span>    = <span class="var">c</span> > <span class="var">e_fast</span> <span class="kw">and</span> <span class="var">e_fast</span> > <span class="var">e_slow</span>
+    <span class="var">score</span>   = <span class="var">bull</span> ? <span class="num">100.0</span> : ... <span class="cmt">// etc.</span>
+    <span class="var">score</span></pre>
+  </div>
+</section>
+
+<!-- SCORING SYSTEM -->
+<section class="section" id="scoring">
+  <div class="section-title">Step 3 — AI Score Engine</div>
+  <h2 class="section-h2">Weighted Scoring Model</h2>
+  <p style="color: var(--muted); margin-bottom: 28px; max-width: 680px;">Each engine produces a 0–100 score. These are combined using a user-configurable weighted average. The weights auto-normalize so they always sum to 100%, even if the user changes them.</p>
+
+  <table class="score-table">
+    <thead>
+      <tr>
+        <th>Engine</th>
+        <th>Input Variable</th>
+        <th>Default Weight</th>
+        <th>Score Range</th>
+        <th>Weight</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Trend (EMA + MTF blend)</td>
+        <td style="font-family: var(--mono); font-size: 11px; color: var(--accent);">w_trend</td>
+        <td>40%</td>
+        <td>0 – 100</td>
+        <td>
+          <div class="pbar"><div class="pbar-fill" style="width:40%; background: var(--accent);"></div></div>
+        </td>
+      </tr>
+      <tr>
+        <td>RSI Momentum</td>
+        <td style="font-family: var(--mono); font-size: 11px; color: #a78bfa;">w_rsi</td>
+        <td>25%</td>
+        <td>0 – 100</td>
+        <td>
+          <div class="pbar"><div class="pbar-fill" style="width:25%; background: #a78bfa;"></div></div>
+        </td>
+      </tr>
+      <tr>
+        <td>Volume Confirmation</td>
+        <td style="font-family: var(--mono); font-size: 11px; color: var(--amber);">w_vol</td>
+        <td>20%</td>
+        <td>0 – 100</td>
+        <td>
+          <div class="pbar"><div class="pbar-fill" style="width:20%; background: var(--amber);"></div></div>
+        </td>
+      </tr>
+      <tr>
+        <td>ATR Volatility</td>
+        <td style="font-family: var(--mono); font-size: 11px; color: var(--red);">w_atr</td>
+        <td>15%</td>
+        <td>0 – 100</td>
+        <td>
+          <div class="pbar"><div class="pbar-fill" style="width:15%; background: var(--red);"></div></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 style="font-family: var(--head); font-size: 18px; font-weight: 600; margin: 32px 0 16px;">Signal Classification</h3>
+  <div class="signal-grid">
+    <div class="signal-card s-sb">
+      <span class="range">80–100</span>
+      <span class="name">STRONG BUY</span>
+    </div>
+    <div class="signal-card s-b">
+      <span class="range">60–79</span>
+      <span class="name">BUY</span>
+    </div>
+    <div class="signal-card s-n">
+      <span class="range">41–59</span>
+      <span class="name">NEUTRAL</span>
+    </div>
+    <div class="signal-card s-s">
+      <span class="range">21–40</span>
+      <span class="name">SELL</span>
+    </div>
+    <div class="signal-card s-ss">
+      <span class="range">0–20</span>
+      <span class="name">STRONG SELL</span>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span class="d-red"></span><span class="d-amber"></span><span class="d-green"></span></div>
+      <span>AI Score calculation with normalized weights</span>
+    </div>
+    <pre><span class="cmt">// Normalize weights to always sum to 100%</span>
+<span class="var">total_weight</span>    = <span class="var">w_trend</span> + <span class="var">w_rsi</span> + <span class="var">w_vol</span> + <span class="var">w_atr</span>
+<span class="var">w_trend_n</span>       = <span class="var">total_weight</span> > <span class="num">0</span> ? <span class="var">w_trend</span> / <span class="var">total_weight</span> : <span class="num">0.40</span>
+
+<span class="cmt">// MTF blended 50/50 with current-bar trend score</span>
+<span class="var">trend_mtf_blend</span> = (<span class="var">trend_score</span> * <span class="num">0.5</span>) + (<span class="var">mtf_avg</span> * <span class="num">0.5</span>)
+
+<span class="cmt">// Weighted composite AI score</span>
+<span class="var">ai_score</span>        = (<span class="var">trend_mtf_blend</span> * <span class="var">w_trend_n</span>) +
+                  (<span class="var">rsi_score</span>       * <span class="var">w_rsi_n</span>)   +
+                  (<span class="var">vol_score</span>       * <span class="var">w_vol_n</span>)    +
+                  (<span class="var">atr_score</span>       * <span class="var">w_atr_n</span>)</pre>
+  </div>
+</section>
+
+<!-- DASHBOARD UI -->
+<section class="section" id="dashboard">
+  <div class="section-title">Step 7 — UI Design</div>
+  <h2 class="section-h2">Dashboard Layout</h2>
+  <p style="color: var(--muted); margin-bottom: 32px;">The table is built with table.new() and uses dynamic color coding per score. Every row has three columns: Module label, Status text, and a percentage score badge. The title and AI signal rows span all columns for visual hierarchy.</p>
+
+  <div style="display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: start;">
+    <div class="dashboard-mockup">
+      <div class="dash-title-row">🤖 AI TREND DASHBOARD PRO</div>
+      <div class="dash-header-row"><span>MODULE</span><span>STATUS</span><span>SCORE</span></div>
+      <div class="dash-row"><span class="label">📈 Trend</span><span class="val">Bullish</span><span class="dash-score sc-g">100%</span></div>
+      <div class="dash-row"><span class="label">⚡ Momentum</span><span class="val">Bullish (62)</span><span class="dash-score sc-b">62%</span></div>
+      <div class="dash-row"><span class="label">📊 Volume</span><span class="val">High (1.8x)</span><span class="dash-score sc-g">90%</span></div>
+      <div class="dash-row"><span class="label">🌊 Volatility</span><span class="val">Normal</span><span class="dash-score sc-b">55%</span></div>
+      <div class="dash-sep">── MULTI-TIMEFRAME ──</div>
+      <div class="dash-row"><span class="label">⏱ 5m</span><span class="val">▲ Bull</span><span class="dash-score sc-g">100%</span></div>
+      <div class="dash-row"><span class="label">⏱ 15m</span><span class="val">▲ Bull</span><span class="dash-score sc-g">100%</span></div>
+      <div class="dash-row"><span class="label">⏱ 1H</span><span class="val">→ Neutral</span><span class="dash-score sc-y">50%</span></div>
+      <div class="dash-row"><span class="label">⏱ 4H</span><span class="val">▲ Bull</span><span class="dash-score sc-g">100%</span></div>
+      <div class="dash-row"><span class="label">🔗 MTF Align</span><span class="val">Strong Bull</span><span class="dash-score sc-g">88%</span></div>
+      <div class="dash-sep">── AI SIGNAL ENGINE ──</div>
+      <div class="dash-final">
+        <div>🤖 82.4</div>
+        <div>STRONG BUY</div>
+        <div>B:82% S:18%</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="tip-card" style="margin-bottom: 14px;">
+        <h4>💡 Dashboard performance tip</h4>
+        <p>The table is built inside an <code style="color: var(--accent); background: rgba(0,212,255,0.08); padding: 1px 5px; border-radius: 3px;">if show_dash</code> block. This is critical — TradingView still evaluates the table.cell() calls on every bar even when the condition is false unless the entire block is wrapped. The <code style="color: var(--accent); background: rgba(0,212,255,0.08); padding: 1px 5px; border-radius: 3px;">var table</code> declaration outside the block ensures the table object persists across bars.</p>
+      </div>
+      <div class="tip-card" style="margin-bottom: 14px;">
+        <h4>🎨 Dynamic color logic</h4>
+        <p>Score ≥ 70 → lime green. Score 55–70 → green. Score 45–55 → gray. Score 30–45 → orange. Score ≤ 30 → red. The f_score_color() helper applies this mapping to every score badge in one place — change the thresholds there and it updates everywhere.</p>
+      </div>
+      <div class="tip-card">
+        <h4>🔢 table.merge_cells()</h4>
+        <p>Title row and section separator rows use table.merge_cells() to span all 3 columns. This creates visual hierarchy and section dividers without needing extra table rows. Used for the header, the MTF section divider, and the AI Signal section divider.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ALERTS -->
+<section class="section" id="alerts">
+  <div class="section-title">Step 9 — Alert System</div>
+  <h2 class="section-h2">7 Named Alert Conditions</h2>
+  <p style="color: var(--muted); margin-bottom: 24px;">Each alertcondition() has a unique title visible in TradingView's alert creation UI and a dynamic message template using <code style="color: var(--accent); background: rgba(0,212,255,0.08); padding: 1px 5px; border-radius: 3px;">&#123;&#123;ticker&#125;&#125;</code>, <code style="color: var(--accent); background: rgba(0,212,255,0.08); padding: 1px 5px; border-radius: 3px;">&#123;&#123;close&#125;&#125;</code>, and <code style="color: var(--accent); background: rgba(0,212,255,0.08); padding: 1px 5px; border-radius: 3px;">&#123;&#123;plot_0&#125;&#125;</code> (the hidden AI score plot).</p>
+
+  <div class="alert-grid">
+    <div class="alert-card">
+      <div class="alert-name">🟢 Buy Signal</div>
+      <p>AI score crosses above the user-defined minimum threshold. ATR filter must be clear (not in low-volatility zone).</p>
+    </div>
+    <div class="alert-card">
+      <div class="alert-name">🔴 Sell Signal</div>
+      <p>AI score crosses below (100 − threshold). Same ATR filter gate. Uses ta.crossunder() for clean one-bar triggers.</p>
+    </div>
+    <div class="alert-card">
+      <div class="alert-name">⭐ Golden Cross</div>
+      <p>EMA 20 crosses above EMA 200. Classic trend-change bullish signal. One-bar trigger via ta.crossover().</p>
+    </div>
+    <div class="alert-card">
+      <div class="alert-name">💀 Death Cross</div>
+      <p>EMA 20 crosses below EMA 200. Classic trend-change bearish signal. Complementary to golden cross.</p>
+    </div>
+    <div class="alert-card">
+      <div class="alert-name">🚀 Strong Setup</div>
+      <p>AI score reaches extreme territory (≥ 80 or ≤ 20). Fires every bar the condition is true — best used with "Once Per Bar" in TradingView alert settings.</p>
+    </div>
+    <div class="alert-card">
+      <div class="alert-name">📈 Full MTF Bull</div>
+      <p>All 4 timeframes show bullish EMA alignment simultaneously. High-confidence trend confirmation signal.</p>
+    </div>
+    <div class="alert-card">
+      <div class="alert-name">📉 Full MTF Bear</div>
+      <p>All 4 timeframes show bearish EMA alignment. High-confidence trend reversal / continuation signal.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PINE SCRIPT BEST PRACTICES -->
+<section class="section">
+  <div class="section-title">Step 6 — Technical Deep Dive</div>
+  <h2 class="section-h2">Pine Script Best Practices</h2>
+
+  <div class="tip-grid">
+    <div class="tip-card">
+      <h4><span class="tip-num">01</span> Avoiding Repainting</h4>
+      <p>Repainting occurs when a script's historical output changes on recalculation. Use <strong>barmerge.lookahead_off</strong> in all request.security() calls. Never use barstate.isrealtime to calculate indicators — they will show different values on history vs live. Use ta.crossover/crossunder on confirmed values only.</p>
+    </div>
+    <div class="tip-card">
+      <h4><span class="tip-num">02</span> request.security() Rules</h4>
+      <p>Always pass the expression to calculate (e.g., ta.ema(close, 20)) as the third argument — do not pass close and calculate inside. Use barmerge.lookahead_off (default in v6). Avoid calling request.security() inside loops or conditional branches — Pine limits the number of unique calls.</p>
+    </div>
+    <div class="tip-card">
+      <h4><span class="tip-num">03</span> Dashboard Performance</h4>
+      <p>Declare your table with var so it persists. Build all table.cell() calls inside one if barstate.islast or if show_dash block. Avoid calling table functions inside loops. Use table.merge_cells() for layout rather than creating extra columns. Keep row count under 20 for readability.</p>
+    </div>
+    <div class="tip-card">
+      <h4><span class="tip-num">04</span> Pine Script Limitations</h4>
+      <p>Max 40 unique request.security() calls per script. Max 500 labels, 500 lines, 50 boxes per chart. No file I/O, no HTTP requests, no external libraries. Cannot access user's account data. Calculations are always bar-by-bar — no vectorized operations. max_bars_back limits historical lookback.</p>
+    </div>
+    <div class="tip-card">
+      <h4><span class="tip-num">05</span> Alert Optimization</h4>
+      <p>Use alertcondition() over alert() for user-configurable triggers. Keep alert conditions as simple boolean expressions — don't compute inside the condition. Use {{plot_0}} to pass computed values into alert messages (requires a plot() call). Use "Once Per Bar Close" for non-repainting alert behavior.</p>
+    </div>
+    <div class="tip-card">
+      <h4><span class="tip-num">06</span> Score Normalization</h4>
+      <p>All engine scores output 0–100. This is critical for the composite formula. When adding new engines, always normalize their output to this range first. Use math.min(math.max(raw, 0), 100) as a safety clamp. This prevents any single engine from dominating regardless of its raw value magnitude.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PUBLISH -->
+<section class="section" id="publish">
+  <div class="section-title">Step 8 — Go to Market</div>
+  <h2 class="section-h2">Publishing & Monetization</h2>
+
+  <div class="publish-grid">
+    <div class="publish-card">
+      <h4>📺 TradingView Marketplace</h4>
+      <ol>
+        <li>Open Pine Editor, paste the script, click Publish</li>
+        <li>Choose "Invite-only" for paid access control</li>
+        <li>Write a compelling description with key features</li>
+        <li>Create a clean screenshot with signals visible</li>
+        <li>Add a demo video showing dashboard and alerts</li>
+        <li>Set price in TradingView's payment system</li>
+        <li>Respond to comments quickly — boosts ranking</li>
+        <li>Update version regularly with changelogs</li>
+      </ol>
+    </div>
+    <div class="publish-card">
+      <h4>💼 Upwork Presentation</h4>
+      <ol>
+        <li>Title: "Pine Script v6 AI Trend Indicator — Dashboard PRO"</li>
+        <li>Lead with the dashboard screenshot and signal markers</li>
+        <li>List: 10 modules, 7 alerts, MTF, non-repainting</li>
+        <li>Show the code is clean and modular with comments</li>
+        <li>Mention: ready for TradingView marketplace publish</li>
+        <li>Offer: custom weights, additional engines on request</li>
+        <li>Price anchor: base + add-on pricing for customization</li>
+        <li>Deliver: .pine file + this documentation HTML</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="code-block" style="margin-top: 24px;">
+    <div class="code-header">
+      <div class="code-dots"><span class="d-red"></span><span class="d-amber"></span><span class="d-green"></span></div>
+      <span>Upwork proposal headline template</span>
+    </div>
+    <pre><span class="str">"Professional Pine Script v6 Indicator — AI Trend Dashboard PRO
+Multi-engine analysis: EMA + RSI + Volume + ATR + 4x MTF
+Non-repainting | Dashboard UI | 7 Alert Conditions
+TradingView marketplace-ready | Full source + documentation"</span></pre>
+  </div>
+</section>
+
+<!-- FUTURE FEATURES -->
+<section class="section">
+  <div class="section-title">Step 8 — Premium Upgrades</div>
+  <h2 class="section-h2">Future Premium Features</h2>
+
+  <div class="future-grid">
+    <div class="future-card">
+      <span class="fc-icon">🧠</span>
+      <h4>Adaptive Weights</h4>
+      <p>Auto-adjust engine weights based on volatility regime. High vol → more ATR weight. Trending → more Trend weight.</p>
+      <span class="coming">v2.0 Planned</span>
+    </div>
+    <div class="future-card">
+      <span class="fc-icon">📐</span>
+      <h4>Smart S/R Zones</h4>
+      <p>Auto-detect key support/resistance levels and display as horizontal zones on the chart. Alert on approach.</p>
+      <span class="coming">v2.0 Planned</span>
+    </div>
+    <div class="future-card">
+      <span class="fc-icon">🔥</span>
+      <h4>Heatmap Mode</h4>
+      <p>Color each candle by AI score — gradient from red (0) to green (100). Instantly spot trend momentum shifts.</p>
+      <span class="coming">v1.5 Planned</span>
+    </div>
+    <div class="future-card">
+      <span class="fc-icon">📋</span>
+      <h4>Trade Journal Table</h4>
+      <p>Log every signal (entry price, time, score) in a second table. Calculate win/loss ratio on historical signals.</p>
+      <span class="coming">v2.0 Planned</span>
+    </div>
+    <div class="future-card">
+      <span class="fc-icon">🌐</span>
+      <h4>8 MTF Levels</h4>
+      <p>Expand from 4 to 8 timeframes for full market structure analysis from 1m to weekly.</p>
+      <span class="coming">v1.5 Planned</span>
+    </div>
+    <div class="future-card">
+      <span class="fc-icon">📡</span>
+      <h4>Webhook Templates</h4>
+      <p>Pre-built alert message JSON templates for direct integration with 3Commas, Alertatron, and custom bots.</p>
+      <span class="coming">v2.0 Planned</span>
+    </div>
+    <div class="future-card">
+      <span class="fc-icon">🎯</span>
+      <h4>Risk/Reward Overlay</h4>
+      <p>Auto-draw entry, stop-loss, and take-profit levels based on ATR from signal bars.</p>
+      <span class="coming">v2.0 Planned</span>
+    </div>
+    <div class="future-card">
+      <span class="fc-icon">⚡</span>
+      <h4>MACD Engine</h4>
+      <p>Replace or augment RSI with MACD histogram for better trend momentum — configurable via input.</p>
+      <span class="coming">v1.5 Planned</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p><span>AI Trend Dashboard PRO</span> · Pine Script v6 · Built to professional standards</p>
+  <p style="margin-top: 8px;">10 modules · 7 alerts · Non-repainting · Dashboard UI · MTF Analysis</p>
+</footer>
+
+</body>
+</html>
