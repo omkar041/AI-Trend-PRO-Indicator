@@ -28,6 +28,17 @@ The system calculates an AI Score and generates alternating BUY/SELL signals to 
 
 ## 📸 Dashboard Preview
 
-
 <img width="1907" height="908" alt="Screenshot 2026-05-23 192908" src="https://github.com/user-attachments/assets/42ca608e-8c50-40e1-a00a-0843d7fcd765" />
+
+## 📸 indicator Preview
+
+ <img width="1600" height="811" alt="WhatsApp Image 2026-05-23 at 7 35 03 PM (2)" src="https://github.com/user-attachments/assets/483a4747-905f-4ee6-bcf8-df088176ec08" />
+ <img width="1600" height="809" alt="WhatsApp Image 2026-05-23 at 7 35 03 PM (1)" src="https://github.com/user-attachments/assets/87fd8e4e-5b88-4a9d-ae3c-b959359e399f" />
+ <img width="1600" height="811" alt="WhatsApp Image 2026-05-23 at 7 35 03 PM" src="https://github.com/user-attachments/assets/163dc05d-b9df-4c29-8b0b-2d246b56d57b" />
+
+
+
+
+
+
 
