@@ -27,3 +27,7 @@ The system calculates an AI Score and generates alternating BUY/SELL signals to 
 - ⚠️ **Alert System** - 6+ alert conditions
 
 ## 📸 Dashboard Preview
+
+
+<img width="1907" height="908" alt="Screenshot 2026-05-23 192908" src="https://github.com/user-attachments/assets/42ca608e-8c50-40e1-a00a-0843d7fcd765" />
+
